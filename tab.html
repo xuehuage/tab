@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>demo</title>
+	<style>
+		*{margin:0;padding:0}
+		.container{padding:50px}
+		h3{margin:40px 0 0 0}
+		.tab-wrap{width:800px;margin-top:10px}
+		.tab-wrap dl{overflow:hidden;display:flex}
+		.tab-wrap dl dd{flex:1;height:50px;background:#f0f0f0;text-align:center;line-height:50px;cursor:pointer}
+		.tab-wrap dl dd.cur{background:#666;color:#fff}
+		.tab-wrap dl dd+dd{margin-left:2px;}
+		.tab-wrap ul{border:1px solid #f0f0f0;padding:20px;}
+		.tab-wrap ul li{display:none}
+		.tab-wrap ul li.current{display:block}
+	</style>
+</head>
+<body>
+	<div class="container">
+			<h3>点击切换</h3>
+			<div class="tab-wrap tab-1">
+				<dl>
+					<dd>menu 1</dd>
+					<dd>menu 2</dd>	
+					<dd>menu 3</dd>	
+					<dd>menu 4</dd>	
+				</dl>
+				<ul>
+					<li>content1</li>
+					<li>content2</li>	
+					<li>content3</li>	
+					<li>content4</li>	
+				</ul>
+			</div>
+			<h3>悬停切换</h3>
+			<div class="tab-wrap tab-2">
+				<dl>
+					<dd>menu 1</dd>
+					<dd>menu 2</dd>	
+					<dd>menu 3</dd>	
+					<dd>menu 4</dd>	
+				</dl>
+				<ul>
+					<li>content1</li>
+					<li>content2</li>	
+					<li>content3</li>	
+					<li>content4</li>	
+				</ul>
+			</div>
+			<h3>默认选中其他的</h3>
+			<div class="tab-wrap tab-3">
+				<dl>
+					<dd>menu 1</dd>
+					<dd>menu 2</dd>	
+					<dd>menu 3</dd>	
+					<dd>menu 4</dd>	
+				</dl>
+				<ul>
+					<li>content1</li>
+					<li>content2</li>	
+					<li>content3</li>	
+					<li>content4</li>	
+				</ul>
+			</div>
+			<h3>带自动播放的点击切换</h3>
+			<div class="tab-wrap tab-4">
+				<dl>
+					<dd>menu 1</dd>
+					<dd>menu 2</dd>	
+					<dd>menu 3</dd>	
+					<dd>menu 4</dd>	
+				</dl>
+				<ul>
+					<li>content1</li>
+					<li>content2</li>	
+					<li>content3</li>	
+					<li>content4</li>	
+				</ul>
+			</div>
+		</div>
+	</body>
+	<script src="jquery-2.2.3.js"></script>
+	<script>
+		function tabChange(o){
+			var initData = {
+				"box":o, //容器
+				"autoplay":false, //是否自动播放
+				"delay":3000, //自动播放间隔时间
+				"index":1, //默认显示第几个
+				"event":"click", //事件 click mouseover
+				"curTitle":"cur", //标题选中的class
+				"curCont":"current" //内容选中的class
+			}
+			// console.log(initData)
+			// console.log(o)
+			//合并
+			var _o = $.extend({},initData,o);
+			// console.log(_o)
+			var _selectTitle = _o.box.find("dl>dd"),
+				_selectCont = _o.box.find("ul>li"),
+				_inx = _o.index-1,
+				_event = _o.event,
+				_auto = _o.autoplay,
+				_box = _o.box,
+				_delay = _o.delay;
+			console.log(_auto)
+			//初始化选中
+			_selectTitle.eq(_inx).addClass(_o.curTitle);
+			_selectCont.eq(_inx).addClass(_o.curCont);
+			
+			
+			//是否自动播放
+			if(_o.autoplay){
+				var inter;
+				function interAuto(){
+					if(_inx < _selectTitle.length-1){
+						_inx++
+					}
+					else{
+						_inx = 0
+					}
+					_selectTitle.eq(_inx).addClass(_o.curTitle).siblings().removeClass(_o.curTitle);
+					_selectCont.eq(_inx).addClass(_o.curCont).siblings().removeClass(_o.curCont)
+				}
+				
+				inter = setInterval(interAuto,_o.delay)
+			}
+			
+			
+			_selectTitle.each(function(){
+				var _self = $(this);
+				_self.bind(_event,function(){
+					if(_o.autoplay && _event == 'mouseover'){
+						clearInterval(inter)
+					}
+					else if(_o.autoplay && _event == 'click'){
+						clearInterval(inter);
+						inter = setInterval(interAuto,_o.delay);
+					}
+					
+					if(_self.hasClass(_o.curTitle)){
+						return false;
+					}
+					_inx = _self.index();
+					_selectTitle.eq(_inx).addClass(_o.curTitle).siblings().removeClass(_o.curTitle);
+					_selectCont.eq(_inx).addClass(_o.curCont).siblings().removeClass(_o.curCont)
+				});
+				
+				
+				_self.bind("mouseleave",function(){
+					if(_o.autoplay && _event == 'mouseover'){
+						inter = setInterval(interAuto,_o.delay)
+					}
+				})
+				
+				
+			})
+		}
+		
+		 tabChange({
+		 	"box":$(".tab-1")
+		 });
+		 tabChange({
+		 	"box":$(".tab-3"),
+		 	"index":3
+		 });
+		
+		 tabChange({
+		 	"box":$(".tab-2"),
+		 	"event":"mouseover"
+		 });
+		
+		 tabChange({
+		 	"box":$(".tab-4"),
+		 	"autoplay":true
+		 });
+	</script>
+</html>
